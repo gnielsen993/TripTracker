@@ -68,15 +68,16 @@ MVP should prove one loop, not the whole vision.
 - Do not hard-code final UI colors or spacing.
 
 ### Data/storage
-- SwiftData local-first is the default.
+- CloudKit + Sign in with Apple should be foundation-level, not a late sync bolt-on.
+- Use local SwiftData/cache for offline speed and resilient editing, but treat CloudKit/account identity as part of the starting architecture.
 - UserDefaults only for tiny settings.
 - Export/import JSON with `schemaVersion` from the beginning.
-- CloudKit sync is a later phase, not required for MVP.
+- Plan a first-party backend for shared/crowd features that do not fit private CloudKit well: public places, reviews, moderation, ranking, recommendations, and AI/import jobs.
 
 ### Authentication
-- No account required for MVP.
-- If sync arrives, use Sign in with Apple + CloudKit.
-- Do not create email/password accounts.
+- Use Sign in with Apple as the primary identity path.
+- Keep email/password out unless there is a later backend-specific reason.
+- The app should be able to cache and show user data locally, but the core product is cloud-aware because cross-device data and eventual shared/crowd value matter.
 
 ### Maps/location
 - Use MapKit for first-party map UI.
@@ -93,11 +94,12 @@ MVP should prove one loop, not the whole vision.
 - Keep provider-specific IDs optional and isolated.
 
 ### AI/import
+- Prove the manual saved-place loop first.
+- Plan AI import for v1 before public ship, not as a vague future idea.
 - AI is not part of the persistence core.
 - Add import parsing behind an `ImportService` protocol.
-- Start with deterministic URL/manual fields before live AI calls.
-- If AI is used to parse source links/screenshots, disclose that place
-  data may be sent to a provider and keep user confirmation in the flow.
+- Start with deterministic URL/manual fields, then add live AI import once the save/list/map/plan loop is solid.
+- If AI is used to parse source links/screenshots, disclose that place data may be sent to a provider and keep user confirmation in the flow.
 
 ### Analytics/crash reporting
 - Firebase Analytics/Crashlytics/Remote Config is acceptable early if
@@ -238,18 +240,25 @@ Start with broad types only:
 - DesignKit theme screen.
 - Accessibility pass.
 
-## 7) Open decisions for Gabe
+## 7) Locked decisions / open decisions
 
-1. **Name:** keep TripTracker, or move toward Adventure List / Adventure
-   Atlas / BucketMap style branding?
-2. **Bundle ID:** current generated ID is `lauterstar.TripTracker`; lock
-   or change before first TestFlight?
-3. **iOS floor:** iOS 17+ for wider reach, or iOS 18+ if newer MapKit/UI
-   APIs matter?
-4. **Map provider:** start Apple-only unless search quality is poor?
-5. **AI timing:** include AI import in v0.1, or prove manual/database loop
-   first?
-6. **Monetization:** delay payments until loop is proven, or design free
+### Locked / current direction
+1. **Public name:** choose a new public name later; keep generic internal
+   TripTracker repo/target naming for now.
+2. **Bundle ID:** lock the current generic bundle ID approach.
+3. **iOS floor:** target iOS 26.x for now.
+4. **AI timing:** prove the manual/database loop first, but plan AI import
+   for v1 before ship.
+5. **Architecture:** start CloudKit + SIWA-first with a local cache and
+   plan a first-party backend for shared/crowd data.
+
+### Still open
+1. **Public brand/name:** pick later when product shape is clearer.
+2. **Map provider:** Apple MapKit first unless Google Places has a clear
+   quality advantage for place search/details.
+3. **Backend shape:** decide CloudKit-only/private data vs separate backend
+   boundaries for public places, reviews, moderation, and recommendations.
+4. **Monetization:** delay payments until loop is proven, or design free
    vs paid boundaries now?
 
 ## 8) Risks
@@ -259,7 +268,8 @@ Start with broad types only:
 - Privacy: saved places and trip plans are sensitive. Analytics and AI
   calls need strict boundaries.
 - API dependency: Google Places/AI could add cost and key-management
-  overhead. Start with Apple/manual where possible.
+  overhead. Use Google Places only if its place search/details/reviews
+  advantage clearly beats Apple MapKit for the core save/import loop.
 - Planning quality: bad routing destroys trust. Label early planner output
   honestly until feasibility logic is strong.
 - Capture friction: if saving a place takes too many steps, retention dies.
@@ -267,9 +277,10 @@ Start with broad types only:
 ## 9) Recommended next build task
 
 Do Phase 0 first:
-- confirm bundle ID + iOS floor
+- keep generic bundle ID locked and iOS 26.x target
 - switch Swift settings if needed
 - add DesignKit
+- add SIWA/CloudKit foundation decisions and entitlements plan
 - create folder structure
 - add `SavedPlace` model skeleton and manual save screen
 

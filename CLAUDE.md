@@ -43,11 +43,11 @@ changes.
 | Current milestone | v0.1 foundation / triage | 2026-05-12 |
 | Product frame | Adventure database + trip planner | 2026-05-12 |
 | MVP user loop | Save place → organize → plan simple adventure | 2026-05-12 |
-| Bundle ID | `lauterstar.TripTracker` currently generated; confirm before first TestFlight | 2026-05-12 |
-| Target iOS | Generated as 26.2; choose real support floor before implementation | 2026-05-12 |
+| Bundle ID | `lauterstar.TripTracker` locked as generic internal ID | 2026-05-12 |
+| Target iOS | 26.x floor for now | 2026-05-12 |
 | Swift / UI | SwiftUI, generated Swift 5 project; decide Swift 6 before implementation | 2026-05-12 |
 | Design system | Use shared DesignKit by default | 2026-05-12 |
-| Persistence direction | SwiftData local-first; CloudKit sync later if needed | 2026-05-12 |
+| Persistence direction | CloudKit/SIWA-first with local cache; backend planned for shared data | 2026-05-12 |
 
 ---
 
@@ -75,9 +75,13 @@ answering from memory.
 - Use SwiftData for local domain data unless triage proves another
   store is better.
 - Use UserDefaults only for tiny settings.
-- Local-first. The app must be useful without an account.
-- If sync ships, prefer CloudKit + Sign in with Apple for Apple-native
-  user data sync.
+- CloudKit + Sign in with Apple should be part of the foundation, not
+  a late bolt-on. The app can cache locally, but the product is account/
+  cloud-aware because saved places, reviews, and shared place signals are
+  core future value.
+- Plan for a first-party backend for shared/crowd data that CloudKit is
+  not ideal for: public places, reviews, rankings, moderation, AI import
+  jobs, and cross-user recommendations.
 - Firebase Analytics / Crashlytics / Remote Config are acceptable early
   for product learning and safety, but never store secrets in the app.
 - External APIs for geocoding/maps/AI must be isolated behind services
@@ -192,5 +196,5 @@ Choose the smallest vertical slice that proves the product loop:
 3. create a simple plan from saved places
 4. mark something visited
 
-Ask before adding account systems, payments, live AI calls, or major
-third-party SDKs.
+Account/SIWA and CloudKit are expected foundation work. Ask before
+adding payments, live AI calls, Google Places, or major third-party SDKs.
