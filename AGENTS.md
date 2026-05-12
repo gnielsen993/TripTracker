@@ -47,7 +47,7 @@ changes.
 | Target iOS | 26.x floor for now | 2026-05-12 |
 | Swift / UI | SwiftUI, generated Swift 5 project; decide Swift 6 before implementation | 2026-05-12 |
 | Design system | Use shared DesignKit by default | 2026-05-12 |
-| Persistence direction | CloudKit/SIWA-first with local cache; backend planned for shared data | 2026-05-12 |
+| Persistence direction | CloudKit/SIWA-first; local cache only for user-owned data | 2026-05-12 |
 
 ---
 
@@ -76,12 +76,17 @@ answering from memory.
   store is better.
 - Use UserDefaults only for tiny settings.
 - CloudKit + Sign in with Apple should be part of the foundation, not
-  a late bolt-on. The app can cache locally, but the product is account/
-  cloud-aware because saved places, reviews, and shared place signals are
-  core future value.
-- Plan for a first-party backend for shared/crowd data that CloudKit is
-  not ideal for: public places, reviews, rankings, moderation, AI import
-  jobs, and cross-user recommendations.
+  a late bolt-on. The app is Apple-ecosystem-first for cost, speed, and
+  simplicity.
+- Local cache is for user-owned data only: the user's saved places,
+  notes, plans, completion records, and settings. Data not owned by the
+  user, such as public place metadata, shared reviews, rankings, and
+  crowd signals, should stay cloud-backed and should not be broadly
+  saved on device beyond temporary caches.
+- Prefer CloudKit-only until it clearly cannot handle a feature. Consider
+  a first-party backend only for needs CloudKit handles poorly: advanced
+  moderation, public ranking/recommendation systems, server-side AI
+  jobs, cross-platform Android support, or non-Apple identity.
 - Firebase Analytics / Crashlytics / Remote Config are acceptable early
   for product learning and safety, but never store secrets in the app.
 - External APIs for geocoding/maps/AI must be isolated behind services

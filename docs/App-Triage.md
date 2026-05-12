@@ -69,10 +69,12 @@ MVP should prove one loop, not the whole vision.
 
 ### Data/storage
 - CloudKit + Sign in with Apple should be foundation-level, not a late sync bolt-on.
-- Use local SwiftData/cache for offline speed and resilient editing, but treat CloudKit/account identity as part of the starting architecture.
+- Keep the app Apple-ecosystem-first for cost, speed, privacy posture, and maintenance simplicity.
+- Local SwiftData/cache is for user-owned data only: saved places, private notes, plans, completion records, and settings.
+- Data not owned by the user, such as public place metadata, shared reviews, rankings, crowd signals, and recommendations, should stay cloud-backed and should not be broadly persisted on device beyond temporary caches.
 - UserDefaults only for tiny settings.
-- Export/import JSON with `schemaVersion` from the beginning.
-- Plan a first-party backend for shared/crowd features that do not fit private CloudKit well: public places, reviews, moderation, ranking, recommendations, and AI/import jobs.
+- Export/import JSON with `schemaVersion` from the beginning for user-owned data.
+- Prefer CloudKit-only until a real feature proves it is insufficient. Consider a first-party backend only for advanced moderation, public ranking/recommendation systems, server-side AI jobs, cross-platform Android support, or non-Apple identity.
 
 ### Authentication
 - Use Sign in with Apple as the primary identity path.
@@ -249,16 +251,15 @@ Start with broad types only:
 3. **iOS floor:** target iOS 26.x for now.
 4. **AI timing:** prove the manual/database loop first, but plan AI import
    for v1 before ship.
-5. **Architecture:** start CloudKit + SIWA-first with a local cache and
-   plan a first-party backend for shared/crowd data.
+5. **Architecture:** start CloudKit + SIWA-first. Local cache only user-owned data; keep non-user-owned/shared data cloud-backed. Prefer CloudKit-only until a feature proves backend complexity is needed.
 
 ### Still open
 1. **Public brand/name:** pick later when product shape is clearer.
 2. **Map provider:** Apple MapKit first unless Google Places has a clear
    quality advantage for place search/details.
-3. **Backend shape:** decide CloudKit-only/private data vs separate backend
-   boundaries for public places, reviews, moderation, and recommendations.
-4. **Monetization:** delay payments until loop is proven, or design free
+3. **Backend shape:** stay CloudKit-only by default; revisit backend only for moderation, ranking/recommendations, server-side AI jobs, Android, or non-Apple identity.
+4. **Platform:** stay Swift/CloudKit first or pursue Android/cross-platform later. Current recommendation: Swift/CloudKit for v1; Android only after iOS proves the loop.
+5. **Monetization:** delay payments until loop is proven, or design free
    vs paid boundaries now?
 
 ## 8) Risks
@@ -268,8 +269,9 @@ Start with broad types only:
 - Privacy: saved places and trip plans are sensitive. Analytics and AI
   calls need strict boundaries.
 - API dependency: Google Places/AI could add cost and key-management
-  overhead. Use Google Places only if its place search/details/reviews
-  advantage clearly beats Apple MapKit for the core save/import loop.
+  overhead. Start Apple-first, but keep `PlaceLookupService` abstract so
+  Google Places can be added later if its search/details/reviews/photos
+  clearly beat MapKit for save/import quality.
 - Planning quality: bad routing destroys trust. Label early planner output
   honestly until feasibility logic is strong.
 - Capture friction: if saving a place takes too many steps, retention dies.
@@ -285,3 +287,14 @@ Do Phase 0 first:
 - add `SavedPlace` model skeleton and manual save screen
 
 Do not start with AI import. Prove the saved-place database first.
+
+## 10) Platform recommendation
+
+Stay Swift + CloudKit for v1. This matches the current iOS 26.x target, keeps cost low, fits SIWA/CloudKit/MapKit, and lets the product move quickly inside the Apple ecosystem. Android should be a later expansion trigger, not a starting constraint. Revisit Android when one of these is true:
+
+- iOS retention proves the saved-place/planning loop.
+- users ask for group trips with Android friends often enough to block sharing.
+- public places/reviews become valuable enough to justify a non-Apple backend anyway.
+- the public brand has traction beyond Gabe's Apple-first app suite.
+
+Design service boundaries now so Android is not impossible later, but do not pay the cross-platform/backend tax before product-market evidence.
